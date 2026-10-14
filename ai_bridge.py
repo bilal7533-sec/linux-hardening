@@ -56,6 +56,15 @@ def _request_json(url: str, headers: dict[str, str], payload: dict[str, Any]) ->
 def _extract_plan_text(provider: str, response: dict[str, Any]) -> str:
     try:
         if provider == "openai":
+            # Responses API returns output/message/content/output_text blocks.
+            pieces = []
+            for item in response.get("output", []):
+                if item.get("type") == "message":
+                    pieces.extend(part.get("text", "") for part in item.get("content", [])
+                                  if part.get("type") in {"output_text", "text"})
+            if pieces:
+                return "\n".join(pieces)
+            # Keep this fallback so compatible chat-completions gateways can be tested.
             return response["choices"][0]["message"]["content"]
         if provider == "anthropic":
             return "\n".join(block["text"] for block in response["content"] if block.get("type") == "text")
@@ -78,19 +87,20 @@ def plan_request(user_request: str, provider: str | None = None, model: str | No
 
     if provider == "openai":
         api_key = os.getenv("OPENAI_API_KEY")
-        model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        model = model or os.getenv("OPENAI_MODEL", "gpt-6-luna")
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY is not set. Configure an API key locally; never commit it to GitHub.")
         response = _request_json(
-            "https://api.openai.com/v1/chat/completions",
+            "https://api.openai.com/v1/responses",
             {"Authorization": f"Bearer {api_key}"},
-            {"model": model, "temperature": 0, "response_format": {"type": "json_object"},
-             "messages": [{"role": "system", "content": SYSTEM_PROMPT + " Output a valid JSON object."},
-                          {"role": "user", "content": user_request}]},
+            {"model": model, "max_output_tokens": 350,
+             "text": {"format": {"type": "json_object"}},
+             "input": [{"role": "system", "content": SYSTEM_PROMPT + " Output a valid JSON object."},
+                       {"role": "user", "content": user_request}]},
         )
     elif provider == "anthropic":
         api_key = os.getenv("ANTHROPIC_API_KEY")
-        model = model or os.getenv("ANTHROPIC_MODEL", "claude-3-7-sonnet-latest")
+        model = model or os.getenv("ANTHROPIC_MODEL", "claude-haiku-5-5")
         if not api_key:
             raise RuntimeError("ANTHROPIC_API_KEY is not set. Configure an API key locally; never commit it to GitHub.")
         response = _request_json(
@@ -102,7 +112,7 @@ def plan_request(user_request: str, provider: str | None = None, model: str | No
         )
     else:
         api_key = os.getenv("GEMINI_API_KEY")
-        model = model or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        model = model or os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
         if not api_key:
             raise RuntimeError("GEMINI_API_KEY is not set. Configure an API key locally; never commit it to GitHub.")
         encoded_model = urllib.parse.quote(model.removeprefix("models/"), safe="-._")
