@@ -11,7 +11,8 @@ from sentinel_agent import load_scope, resolve_requested_target
 class TargetScopeTests(unittest.TestCase):
     def setUp(self):
         self.scope = load_scope(Path("config/scope.json"))
-        self.scope["scope"] = ["192.168.149.128/25"]
+        self.scope["scope"] = ["192.168.149.0/24"]
+        self.scope["max_hosts"] = 64
 
     def test_target_inside_scope_is_allowed(self):
         self.assertEqual(resolve_requested_target("192.168.149.129", self.scope), "192.168.149.129/32")
