@@ -1,0 +1,13 @@
+{
+  "authorized": false,
+  "scope": [
+    "192.168.1.0/24"
+  ],
+  "rate_limit": 5,
+  "max_hosts": 1024,
+  "tools": {
+    "nmap": true,
+    "nuclei": false,
+    "testssl": false
+  }
+}
