@@ -34,12 +34,12 @@ class AIPlanTests(unittest.TestCase):
     @patch("ai_bridge._request_json")
     def test_openai_plan_is_parsed(self, mock_request):
         mock_request.return_value = {
-            "choices": [{"message": {"content": json.dumps({
+            "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps({
                 "target": "192.168.149.129",
                 "checks": ["nmap", "tls"],
                 "rationale": "Service inventory and TLS checks",
                 "clarification": ""
-            })}}]
+            })}]}]
         }
         plan = plan_request("Scan 192.168.149.129 and check TLS", provider="openai")
         self.assertEqual(plan["target"], "192.168.149.129")
@@ -50,10 +50,10 @@ class AIPlanTests(unittest.TestCase):
     @patch("ai_bridge._request_json")
     def test_unsupported_action_is_rejected(self, mock_request):
         mock_request.return_value = {
-            "choices": [{"message": {"content": json.dumps({
+            "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps({
                 "target": "192.168.149.129", "checks": ["run-shell"],
                 "rationale": "bad action", "clarification": ""
-            })}}]
+            })}]}]
         }
         with self.assertRaises(RuntimeError):
             plan_request("Please do something", provider="openai")
