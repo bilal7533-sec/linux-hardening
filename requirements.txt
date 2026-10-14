@@ -1,0 +1,2 @@
+# Controller uses the Python standard library only.
+# External scanners are installed separately and have their own licenses.
