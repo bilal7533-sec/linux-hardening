@@ -1,6 +1,6 @@
 # Architecture
 
-\`\`\`text
+```text
 CLI: natural-language request
               |
               v
@@ -23,13 +23,13 @@ CLI: natural-language request
                                      |
                                      v
                          human validation/report
-\`\`\`
+```
 
 ## Trust boundaries
 
 - The LLM is an untrusted planner. It returns only a target and a fixed set of action labels.
 - The local application validates the target against the configured private scope, applies the host budget and checks whether each adapter is enabled.
-- Execution is a separate operator decision and requires the CLI execution flags and \`authorized: true\` in the local scope file.
+- Execution is a separate operator decision and requires the CLI execution flags and `authorized: true` in the local scope file.
 - Scanner output is untrusted evidence. This MVP does not pass results back to the model for automated conclusions.
 - A hosted AI provider receives the prompt text. Avoid sending secrets or sensitive organizational data.
 
