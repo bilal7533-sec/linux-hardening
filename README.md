@@ -77,7 +77,7 @@ Provider variables:
 | Claude | `ANTHROPIC_API_KEY` | `ANTHROPIC_MODEL` |
 | Gemini | `GEMINI_API_KEY` | `GEMINI_MODEL` |
 
-Defaults are provided in `.env.example`; change the model variable if that model is not enabled for your API account. API usage may be billed by the provider.
+Defaults are provided in `.env.example` (OpenAI `gpt-6-luna`, Claude `claude-haiku-5-5`, Gemini `gemini-3.8-flash`); change the model variable if that model is not enabled for your API account. API usage may be billed by the provider. A ChatGPT, Claude, or Gemini web-app subscription does not automatically guarantee API access or include API credits.
 
 ## 2. Configure authorized scope
 
